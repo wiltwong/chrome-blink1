@@ -1,0 +1,25 @@
+// manifest.json
+{
+  "manifest_version": 2,
+  "name": "Blink(1) Light Helper",
+  "version": "1.0",
+  "description": "Detects when you are in a hangout URL and initiates the blink(1) app",
+  "minimum_chrome_version": "39.0.2140.0",
+  "icons": {
+    "16": "16.png",
+    "48": "48.png",
+    "128": "128.png"
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "page_action" :
+  {
+    "default_title" : "You Are OnAir!",
+    "default_popup": "color-picker.html"
+  },
+  "permissions" : [
+    "tabs",
+    "https://plus.google.com/hangouts/*"
+  ]
+}

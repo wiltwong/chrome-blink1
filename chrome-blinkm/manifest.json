@@ -1,0 +1,23 @@
+{
+  "name": "Blink(1) Light App",
+  "manifest_version": 2,
+  "version": "0.3",
+  "minimum_chrome_version": "39.0.2140.0",
+  "app": {
+    "background": {
+      "scripts": [ "main.js" ]
+    }
+  },
+  "icons": {
+    "128": "128.png"
+  },
+  "permissions": [
+    "https://plus.google.com/hangouts/*",
+    "hid",
+    {
+      "usbDevices": [
+        { "vendorId": 10168, "productId": 493 }
+      ]
+    }
+  ]
+}
