@@ -10,60 +10,61 @@ var ui = {
 var bg = this;
 
 function onAppWindowClosed() {
-	ui.r.value = 0;
-	ui.g.value = 0;
-	ui.b.value = 0;
-	setGradients();
-	enableControls(false);
+    ui.r.value = 0;
+    ui.g.value = 0;
+    ui.b.value = 0;
+    setGradients();
+    enableControls(false);
     if (blink1) {
-		blink1.fadeRgb(0, 0, 0, 250, 0);
+        blink1.fadeRgb(0, 0, 0, 250, 0);
         blink1.disconnect(function() {});
     }
     window.close();
 }
 
 chrome.runtime.onConnectExternal.addListener(function(port) {
-	//console.log('Initilaizing Blink(1) App');
-	if (!document.getElementById('picker')) {
-		// Create the structure for the UI elements in background document(cheating here, too lazy to mimick all the original UI elements in prototypes)
-		var pickerObj = document.createElement("SELECT");
-		pickerObj.id = 'picker';
-		var optionObj = document.createElement("OPTION");
-		optionObj.id = 'empty';
-		optionObj.text = 'No devices found.';
-		optionObj.selected = true;
-		pickerObj.appendChild(optionObj);
-		document.body.appendChild(pickerObj);
-		
-		var rObj = document.createElement("INPUT");
-		rObj.id = 'r';
-		rObj.setAttribute("type", "range");
-		rObj.setAttribute("min", 0);
-		rObj.setAttribute("max", 255);
-		rObj.setAttribute("value", 0);
-		rObj.setAttribute("disabled", true);
-		document.body.appendChild(rObj);
-		
-		var gObj = document.createElement("INPUT");
-		gObj.id = 'g';
-		gObj.setAttribute("type", "range");
-		gObj.setAttribute("min", 0);
-		gObj.setAttribute("max", 255);
-		gObj.setAttribute("value", 0);
-		gObj.setAttribute("disabled", true);
-		document.body.appendChild(gObj);
-		
-		var bObj = document.createElement("INPUT");
-		bObj.id = 'b';
-		bObj.setAttribute("type", "range");
-		bObj.setAttribute("min", 0);
-		bObj.setAttribute("max", 255);
-		bObj.setAttribute("value", 0);
-		bObj.setAttribute("disabled", true);
-		document.body.appendChild(bObj);
-	}
-	
-	for (var k in ui) {
+    //console.log('Initilaizing Blink(1) App');
+    if (!document.getElementById('picker')) {
+        // Create the structure for the UI elements in background document
+        // (cheating here, too lazy to mimick all the original UI elements in prototypes)
+        var pickerObj = document.createElement("SELECT");
+        pickerObj.id = 'picker';
+        var optionObj = document.createElement("OPTION");
+        optionObj.id = 'empty';
+        optionObj.text = 'No devices found.';
+        optionObj.selected = true;
+        pickerObj.appendChild(optionObj);
+        document.body.appendChild(pickerObj);
+        
+        var rObj = document.createElement("INPUT");
+        rObj.id = 'r';
+        rObj.setAttribute("type", "range");
+        rObj.setAttribute("min", 0);
+        rObj.setAttribute("max", 255);
+        rObj.setAttribute("value", 0);
+        rObj.setAttribute("disabled", true);
+        document.body.appendChild(rObj);
+        
+        var gObj = document.createElement("INPUT");
+        gObj.id = 'g';
+        gObj.setAttribute("type", "range");
+        gObj.setAttribute("min", 0);
+        gObj.setAttribute("max", 255);
+        gObj.setAttribute("value", 0);
+        gObj.setAttribute("disabled", true);
+        document.body.appendChild(gObj);
+        
+        var bObj = document.createElement("INPUT");
+        bObj.id = 'b';
+        bObj.setAttribute("type", "range");
+        bObj.setAttribute("min", 0);
+        bObj.setAttribute("max", 255);
+        bObj.setAttribute("value", 0);
+        bObj.setAttribute("disabled", true);
+        document.body.appendChild(bObj);
+    }
+    
+    for (var k in ui) {
       var id = k.replace(/([A-Z])/, '-$1').toLowerCase();
       var element = document.getElementById(id);
       if (!element) {
@@ -72,7 +73,7 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
       ui[k] = element;
     }
     setGradients();
-	
+    
     chrome.hid.getDevices({}, onDevicesEnumerated);
     if (chrome.hid.onDeviceAdded) {
         chrome.hid.onDeviceAdded.addListener(onDeviceAdded);
@@ -80,68 +81,68 @@ chrome.runtime.onConnectExternal.addListener(function(port) {
     if (chrome.hid.onDeviceRemoved) {
         chrome.hid.onDeviceRemoved.addListener(onDeviceRemoved);
     }
-	
-	// add listener for messages
-	port.onMessage.addListener(function(msg) {
-		//console.log(msg);
-		if (msg.event == "hangout-shutdown"){
-			//console.log("hangout-shutdown");
-			onAppWindowClosed();
-		} else if (msg.event == "hangout-startup") {
-			var monitor = function() {
-				if (blink1) {
-					ui.r.value = 255;
-					ui.g.value = 0;
-					ui.b.value = 0;
-					setGradients();
-					enableControls(true);
-					blink1.fadeRgb(255, 0, 0, 250, 0);
-					return;
-				} else {
-					setTimeout(monitor, 250);
-				}
-			};
-			monitor();
-		} else if (msg.event == "status") {
-		
-			// Could pass object but why tempt fate?
-			var pickerOptions = [];
-			for (var k=0; k<ui.picker.length; k++) {
-				pickerOptions[k] = new Object();
-				pickerOptions[k].id = ui.picker[k].id;
-				pickerOptions[k].text = ui.picker[k].text;
-			}
-			var pickerOptionsStr = JSON.stringify(pickerOptions);
-		
-			port.postMessage({
-				// for some reason, I can't pass the UI object back properly
-				event: "status",
-				r_value: ui.r.value, 
-				r_disabled: ui.r.disabled,
-				r_background: ui.r.style.background,
-				g_value: ui.g.value,
-				g_disabled: ui.g.disabled,
-				g_background: ui.g.style.background,
-				b_value: ui.b.value,
-				b_disabled: ui.b.disabled,
-				b_background: ui.b.style.background,
-				picker_options: pickerOptionsStr,
-				picker_disabled: ui.picker.disabled,
-				picker_selectedIndex: ui.picker.selectedIndex
-				
-			});
-		}
-	});
-	
-	port.onDisconnect.addListener(function()
-	{
-	  // TODO: Disable UI
-	  port = null;
-	  //console.log("shutdown");
-	  onAppWindowClosed();
-	});
-	
-	//console.log('Initilaizing Blink(1) App: complete');
+    
+    // add listener for messages
+    port.onMessage.addListener(function(msg) {
+        //console.log(msg);
+        if (msg.event == "hangout-shutdown"){
+            //console.log("hangout-shutdown");
+            onAppWindowClosed();
+        } else if (msg.event == "hangout-startup") {
+            var monitor = function() {
+                if (blink1) {
+                    ui.r.value = 255;
+                    ui.g.value = 0;
+                    ui.b.value = 0;
+                    setGradients();
+                    enableControls(true);
+                    blink1.fadeRgb(255, 0, 0, 250, 0);
+                    return;
+                } else {
+                    setTimeout(monitor, 250);
+                }
+            };
+            monitor();
+        } else if (msg.event == "status") {
+        
+            // Could pass object but why tempt fate?
+            var pickerOptions = [];
+            for (var k=0; k<ui.picker.length; k++) {
+                pickerOptions[k] = new Object();
+                pickerOptions[k].id = ui.picker[k].id;
+                pickerOptions[k].text = ui.picker[k].text;
+            }
+            var pickerOptionsStr = JSON.stringify(pickerOptions);
+        
+            port.postMessage({
+                // for some reason, I can't pass the UI object back properly
+                event: "status",
+                r_value: ui.r.value, 
+                r_disabled: ui.r.disabled,
+                r_background: ui.r.style.background,
+                g_value: ui.g.value,
+                g_disabled: ui.g.disabled,
+                g_background: ui.g.style.background,
+                b_value: ui.b.value,
+                b_disabled: ui.b.disabled,
+                b_background: ui.b.style.background,
+                picker_options: pickerOptionsStr,
+                picker_disabled: ui.picker.disabled,
+                picker_selectedIndex: ui.picker.selectedIndex
+                
+            });
+        }
+    });
+    
+    port.onDisconnect.addListener(function()
+    {
+      // TODO: Disable UI
+      port = null;
+      //console.log("shutdown");
+      onAppWindowClosed();
+    });
+    
+    //console.log('Initilaizing Blink(1) App: complete');
 });
 
 /*
@@ -180,7 +181,7 @@ function onDeviceAdded(device) {
         device.productId != Blink1.PRODUCT_ID) {
         return;
     }
-	
+    
     var blink1 = new Blink1(device.deviceId);
     blink1.connect(function(success) {
         if (success) {
