@@ -6,8 +6,8 @@ These extentions and applications use the `chrome.hid` API by controlling a [Thi
 
 Due to security and design restrictions within Chrome there are two segements of the overall implementation:
 
-* ** chrome-blinkm **: This is a chrome application that interfaces with the actual hardware via the USB HID
-* ** chrome-blinkm-helper **: This is a chrome extention that interfaces with the browser and provides an interface to the chrome chrome-blinkm application
+* **chrome-blinkm**: This is a chrome application that interfaces with the actual hardware via the USB HID
+* **chrome-blinkm-helper**: This is a chrome extention that interfaces with the browser and provides an interface to the chrome chrome-blinkm application
 
 Chrome allows applications to access USB devices, but does not allow them to ineract with the browsing windows or access the browser tab information. However, Chrome allows extentions to access the browsing windows and browser tb information. The combination of the application and extension provide us the ability to detect when a URL matches a specific pattern, which in turn contols the RGB LED light.
 
@@ -37,11 +37,11 @@ On Linux a udev rule must be added to allow Chrome to open the blink(1) device. 
     # Make the blink(1) accessible to plugdev via hidraw.
     SUBSYSTEM=="hidraw", SUBSYSTEMS=="usb", ATTRS{idVendor}=="27b8", ATTRS{idProduct}=="01ed", MODE="0660", GROUP="plugdev"
 
-## Design Notes
+### Design Notes
 
 The chrome-blinkm-helper extension has two parts, a background process that looks for changes in the tab URLs and matches it against the Google Hangout URL of 'plus.google.com/hangouts'. When a match is found, an icon is created in the corresponding tab that contains a popup that shows information about the attached blink(1) device, if one is attached. The background process is required since the popup is not loaded/executed until the icon is clicked. In addtion to creating the UI element, the extension opens a communication channel to the chrome-blinkm appliacation (starting the application if it hasn't already started). When the chrome-blinkm starts, it opens the USB devices and scans for blink(1) devices and if one is found it sets the colour to red. When the chrome-blinkm-helper popup is clicked and rendered, a "status" request is sent from the popup to the background process which is then relayed to the chrome-blinkm application. The chrome-blinkm application then responds by sending the staus back to the chrome-blinkm-helper background process which in turn relays that message to the popup, the popup then renders the appropriate UI elements.
 
-## TODO
+### TODO
 
 * General code cleanup
 * Re-implement the chrome-blinkm application to use simpler structures and variables instead of using document elements in a hidden background process (implemented this way since the orginal code used a "real UI" and it was easier to create the HTML in memory
