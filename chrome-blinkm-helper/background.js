@@ -3,6 +3,17 @@ var port;
 var iport;
 var chromeAppId = 'nmlkacdampdnbcnelilbfaglbdmggcfm';
 
+/*
+The regex to test. Should match:
+https://plus.google.com/hangouts/_/google.com/namedhangout
+https://plus.google.com/hangouts/_/company.info/namedhangout
+plus.google.com/hangouts/_/grrnunkn2uoiun5v6o4oq6j6oua?hl=en
+But not:
+https://plus.google.com/hangouts/_/google.com
+www.google.com
+*/
+var regexForHangoutsPage = /plus\.google\.com\/hangouts\/_\/((?=[^\.]*\.[^\/]*\/.)|((?![^\.]*\.[^\/]*)[^\.\/]*))/
+
 // Add a listener so background knows when a tab has changed.
 // You need 'tabs' persmission, that's why we added it to manifest file.
 
@@ -82,7 +93,7 @@ function showControlPanelOnReplacedAction(addedTabId, removedTabId) {
   // Check if the old tab was a hangouts tab
   if (typeof tabToUrl[removedTabId] != 'undefined') {
     // we are moving away from a hangouts page
-    if (tabToUrl[removedTabId].indexOf('plus.google.com/hangouts') > -1) {
+    if (regexForHangoutsPage.test(tabToUrl[removedTabId])) {
       delete tabToUrl[removedTabId];
       if (!port) {
         port = chrome.runtime.connect(chromeAppId);
@@ -98,7 +109,7 @@ function showControlPanelOnReplacedAction(addedTabId, removedTabId) {
 };
 
 function updateTabToUrl(tab) {
-  if (tab.url.indexOf('plus.google.com/hangouts') > -1) {
+  if (regexForHangoutsPage.test(tab.url)) {
       tabToUrl[tabId] = tab.url;
       chrome.pageAction.show(tabId);
       
@@ -125,7 +136,26 @@ function updateTabToUrl(tab) {
 function showControlPanelOnUpdatedAction(tabId, changeInfo, tab) {
   //alert('showControlPanelOnUpdatedAction');
   
-  if (tab.url.indexOf('plus.google.com/hangouts') > -1) {
+  if (regexForHangoutsPage.test(tab.url + "/")) {
+    tabToUrl[tabId] = tab.url;
+    if (changeInfo.status == 'complete') {
+      // Show icon for page action in the current tab.
+	  console.log("########### starting hangout indicator light")
+      chrome.pageAction.show(tabId);
+      // Check if the app is installed and enabled by opening a messaging port
+      if (!port) {
+        port = chrome.runtime.connect(chromeAppId);
+        port.onDisconnect.addListener(function()
+        {
+          // TODO: Disable UI
+		  port = null;
+        });
+      }
+	  port.postMessage({event: "hangout-startup"});
+    }
+  }
+  
+  if ( changeInfo && changeInfo.url && changeInfo.url.indexOf('plus.google.com/hangouts') > -1 && !regexForHangoutsPage.test(changeInfo.url)) {
     tabToUrl[tabId] = tab.url;
     if (changeInfo.status == 'complete') {
       // Show icon for page action in the current tab.
