@@ -9,9 +9,9 @@ Due to security and design restrictions within Chrome there are two segements of
 * **chrome-blinkm**: This is a chrome application that interfaces with the actual hardware via the USB HID
 * **chrome-blinkm-helper**: This is a chrome extention that interfaces with the browser and provides an interface to the chrome chrome-blinkm application
 
-Chrome allows applications to access USB devices, but does not allow them to ineract with the browsing windows or access the browser tab information. However, Chrome allows extentions to access the browsing windows and browser tb information. The combination of the application and extension provide us the ability to detect when a URL matches a specific pattern, which in turn contols the RGB LED light.
+Chrome allows applications to access USB devices, but does not allow them to interact with the browsing windows or access the browser tab information. However, Chrome allows extentions to access the browsing windows and browser tb information. The combination of the application and extension provide us the ability to detect when a URL matches a specific pattern, which in turn contols the RGB LED light.
 
-The helper extention and the application is based on [code](https://raw.github.com/GoogleChrome/chrome-app-samples/master) that was developed for the blink(1) by the Chrome team.
+The helper extention and the application is based on [code](https://github.com/googlechrome/chrome-app-samples) that was developed for the blink(1) by the Chrome team.
 
 ## APIs
 
