@@ -11,9 +11,7 @@ Due to security and design restrictions within Chrome there are two segements of
 
 Chrome allows applications to access USB devices, but does not allow them to ineract with the browsing windows or access the browser tab information. However, Chrome allows extentions to access the browsing windows and browser tb information. The combination of the application and extension provide us the ability to detect when a URL matches a specific pattern, which in turn contols the RGB LED light.
 
-The helper extention and the application is based on code that was developed for the Blink(1) by the Chrome team:
-
-<a target="_blank" href="https://chrome.google.com/webstore/detail/kcpjgiicabigbjejdjnkflkdkjknkdch">![Try it now in CWS](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton.png "Click here to install the original sample from the Chrome Web Store")</a>
+The helper extention and the application is based on [code](https://raw.github.com/GoogleChrome/chrome-app-samples/master) that was developed for the blink(1) by the Chrome team.
 
 ## APIs
 
